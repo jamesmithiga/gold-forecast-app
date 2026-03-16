@@ -8,11 +8,9 @@ import pandas as pd
 import numpy as np
 from typing import Dict, Any, List, Optional
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 
-from pydantic_models.schemas import Forecast, ForecastSummary
 from utils.feature_engineering import generate_forecast_future_periods
-from utils.data_processing import get_latest_data
 
 logger = logging.getLogger(__name__)
 
@@ -53,11 +51,10 @@ class ForecastService:
             # Get forecast data
             from utils.feature_engineering import create_train_test_forecast_split
             _, _, forecast_data, _ = create_train_test_forecast_split(features)
-            
+
             # Generate forecasts
-            from utils.feature_engineering import generate_forecast_future_periods
             forecast_df = generate_forecast_future_periods(
-                model_type=model_type, forecast_data=forecast_data, 
+                model_type=model_type, forecast_data=forecast_data,
                 periods=periods, max_periods=self.max_forecast_periods
             )
             
@@ -179,10 +176,10 @@ class ForecastService:
                 'high_volatility': high_volatility,
                 'large_increase': large_increase,
                 'large_decrease': large_decrease,
-                'confidence': self._calculate_confidence(forecast_df),
-                'recommendations': self._generate_recommendations(analysis)
+                'confidence': self._calculate_confidence(forecast_df)
             }
-            
+            analysis['recommendations'] = self._generate_recommendations(analysis)
+
             return analysis
             
         except Exception as e:

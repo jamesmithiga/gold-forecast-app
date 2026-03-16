@@ -137,8 +137,11 @@ def retrain_model(payload: dict = Body(...)):
 	try:
 		ticker = payload.get("ticker", "GC=F")
 		model_name = payload.get("model_name", None)  # Get the specific model to retrain
-		requested_train_ratio = payload.get("train_ratio", 0.2)
+		requested_train_ratio = float(payload.get("train_ratio", 0.8))
+		requested_test_ratio = 1.0 - requested_train_ratio
 		force_retrain = payload.get("force_retrain", False)  # Option to force full retraining
+		if not 0 < requested_train_ratio < 1:
+			raise ValueError("train_ratio must be between 0 and 1")
 		
 		# Validate payload
 		if not isinstance(payload, dict):
@@ -178,7 +181,7 @@ def retrain_model(payload: dict = Body(...)):
 						model_type=model_type,
 						data=data,
 						target_column="Close",
-						test_size=requested_train_ratio,
+						test_size=requested_test_ratio,
 						ticker=ticker
 					)
 					
@@ -236,7 +239,7 @@ def retrain_model(payload: dict = Body(...)):
 					model_type=model_type,
 					data=data,
 					target_column="Close",
-					test_size=requested_train_ratio,
+					test_size=requested_test_ratio,
 					ticker=ticker
 				)
 				

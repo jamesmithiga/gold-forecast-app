@@ -14,6 +14,8 @@ import logging
 import sys
 import os
 
+logger = logging.getLogger(__name__)
+
 # Add parent directory to path for core_functions import
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -25,7 +27,7 @@ try:
     from utils.core_functions import get_data_summary, load_and_prepare_data, calculate_metrics, check_data_freshness
     CORE_FUNCTIONS_AVAILABLE = True
 except Exception as e:
-    print(f"core_functions not available: {e}")
+    logger.warning(f"core_functions not available: {e}")
 
 # Fallback: Direct yfinance import for data freshness check
 if not CORE_FUNCTIONS_AVAILABLE or check_data_freshness is None:
@@ -82,8 +84,6 @@ if not CORE_FUNCTIONS_AVAILABLE or check_data_freshness is None:
                 'message': f'Error: {str(e)}',
                 'recommendation': 'Unable to verify data freshness'
             }
-
-logger = logging.getLogger(__name__)
 
 st.set_page_config(page_title="Modelling - Gold Price Dashboard", layout="wide")
 

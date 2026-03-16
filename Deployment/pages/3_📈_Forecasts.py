@@ -15,8 +15,10 @@ import logging
 import sys
 import os
 
+logger = logging.getLogger(__name__)
+
 # Add parent directory to path for core_functions import - MUST BE BEFORE IMPORT
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Try to import core_functions
 CORE_FUNCTIONS_AVAILABLE = False
@@ -26,7 +28,7 @@ try:
     from utils.core_functions import get_intraday_data, get_latest_price_data, check_data_freshness
     CORE_FUNCTIONS_AVAILABLE = True
 except Exception as e:
-    print(f"core_functions not available: {e}")
+    logger.warning(f"core_functions not available: {e}")
 
 # Fallback: Direct yfinance import for data freshness check
 if not CORE_FUNCTIONS_AVAILABLE or check_data_freshness is None:
@@ -53,8 +55,6 @@ if not CORE_FUNCTIONS_AVAILABLE or check_data_freshness is None:
             return {'ticker': ticker, 'is_fresh': is_fresh, 'last_update': last_date, 'days_since_update': days_since_update, 'current_price': float(df['Close'].iloc[-1]) if 'Close' in df.columns else float(df.iloc[-1, 0]), 'message': message, 'recommendation': recommendation}
         except Exception as e:
             return {'ticker': ticker, 'is_fresh': False, 'last_update': None, 'days_since_update': None, 'message': f'Error: {str(e)}', 'recommendation': 'Unable to verify data freshness'}
-
-logger = logging.getLogger(__name__)
 
 st.set_page_config(page_title="Forecasts - Gold Price Dashboard", layout="wide")
 st.markdown("# 📈 Gold Price Forecasts & Predictions")

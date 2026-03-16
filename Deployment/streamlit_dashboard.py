@@ -15,18 +15,17 @@ import logging
 import sys
 import os
 
+logger = logging.getLogger(__name__)
 
 # Add parent directory to path for core_functions import
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 try:
-    from utils.core_functions import get_intraday_data, get_latest_price_data
+    from utils.core_functions import get_intraday_data
     CORE_FUNCTIONS_AVAILABLE = True
 except ImportError:
     CORE_FUNCTIONS_AVAILABLE = False
-    print("Warning: core_functions module not available, using direct yfinance calls")
-
-logger = logging.getLogger(__name__)
+    logger.warning("core_functions module not available; falling back to direct yfinance calls")
 
 st.set_page_config(page_title="Data - Gold Price Dashboard", layout="wide")
 

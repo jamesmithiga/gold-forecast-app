@@ -693,32 +693,3 @@ def evaluate_model_on_test_set(y_true, y_pred, model_name: str, ticker: str = 'G
         logger.error(f"Error evaluating model: {str(e)}")
         raise
 
-
-if __name__ == "__main__":
-    # Test the core functions
-    logging.basicConfig(level=logging.INFO)
-    
-    print("Testing Core Functions Module")
-    print("=" * 60)
-    
-    # Load data
-    df = load_and_prepare_data()
-    print(f"\n✓ Data loaded: {len(df)} days")
-    
-    # Check stationarity
-    stat_result = check_stationarity(df['Close'], "Raw Prices")
-    print(f"✓ Stationarity check: {stat_result['status']}")
-    
-    # Engineer features
-    featured_df = engineer_features(df)
-    print(f"✓ Features engineered: {len(featured_df.columns)} features")
-    
-    # 3-way split (NEW)
-    train, test, forecast, split_info = create_train_test_forecast_split(featured_df)
-    print(f"✓ 3-way split: Train={len(train)}, Test={len(test)}, Forecast={len(forecast)}")
-    
-    # Data summary
-    summary = get_data_summary(df)
-    print(f"\n✓ Data Summary:")
-    for key, value in summary.items():
-        print(f"  {key}: {value}")
