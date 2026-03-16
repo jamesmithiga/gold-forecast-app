@@ -1,6 +1,7 @@
 # Core requirements for the project
 streamlit
 fastapi
+uvicorn
 pandas
 numpy
 scikit-learn
@@ -8,9 +9,11 @@ matplotlib
 plotly
 yfinance
 pydantic
+pydantic-settings
 prophet
 pmdarima
 torch
 statsmodels
 holidays
 joblib
+requests
