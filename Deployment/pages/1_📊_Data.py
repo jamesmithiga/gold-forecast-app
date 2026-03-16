@@ -84,10 +84,10 @@ with st.sidebar:
     show_stats = True
     
     # Quick period selector at top level
-    quick_period = st.radio(
+    quick_period = st.selectbox(
         "Quick Select:",
         options=["1M", "3M", "6M", "Custom"],
-        horizontal=True,
+        index=1,
         help="Quick date range selection"
     )
     
@@ -200,7 +200,7 @@ if df is not None and len(df) > 0:
         # Table view options
         col1, col2 = st.columns(2)
         with col1:
-            num_rows = st.slider("Rows to display:", 10, min(100, len(display_df)), 20)
+            num_rows = st.selectbox("Rows to display:", options=[10, 20, 30, 50, 100], index=1)
         with col2:
             sort_by = st.selectbox("Sort by:", ["Date", "Close", "Volume"])
         
@@ -242,7 +242,7 @@ if df is not None and len(df) > 0:
         
         # Data preview before export
         st.markdown("#### Data Preview")
-        preview_rows = st.slider("Preview rows:", 5, 50, 10)
+        preview_rows = st.selectbox("Preview rows:", options=[5, 10, 20, 30, 50], index=1)
         st.dataframe(export_preview_df.head(preview_rows).style.set_table_styles([
                 {'selector': 'td', 'props': [('text-align', 'center')]},
                 {'selector': 'th', 'props': [('text-align', 'center')]}

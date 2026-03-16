@@ -137,8 +137,8 @@ with st.sidebar:
         st.markdown("**Model Info**")
         st.info(f"🔵 {selected_model} Selected")
     with config_tabs[1]:
-        forecast_days = st.slider("Forecast Days:", min_value=1, max_value=90, value=30, step=5, help="Number of days to forecast ahead")
-        historical_days = st.slider("Historical Window:", min_value=30, max_value=365, value=180, step=30, help="Number of historical days to display")
+        forecast_days = st.selectbox("Forecast Days:", options=[1, 5, 7, 10, 14, 21, 30, 45, 60, 90], index=6)
+        historical_days = st.selectbox("Historical Window:", options=[30, 60, 90, 120, 180, 365], index=4)
         st.divider()
         confidence_level = st.slider("Confidence Level:", min_value=80, max_value=99, value=95, step=1, help="Confidence level for prediction bands")
     with config_tabs[2]:
@@ -296,7 +296,7 @@ with tab1:
 with tab2:
     st.markdown("### Multi-Model Forecast Comparison")
     compare_models = st.multiselect("Select Models to Compare:", options=list(models.keys()), default=list(models.keys())[:3])
-    comparison_type = st.radio("View Type:", ["Overlay", "Side-by-side"], horizontal=True)
+    comparison_type = st.selectbox("View Type:", ["Overlay", "Side-by-side"])
     st.divider()
     
     if compare_models:

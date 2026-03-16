@@ -86,10 +86,10 @@ with st.sidebar:
     show_stats = True
     
     # Quick period selector at top level
-    quick_period = st.radio(
+    quick_period = st.selectbox(
         "Quick Select:",
         options=["1M", "3M", "6M", "Custom"],
-        horizontal=True,
+        index=1,
         help="Quick date range selection"
     )
     
@@ -254,8 +254,8 @@ if df is not None and len(df) > 0:
         
         with vol_col:
             st.markdown("**Chart Settings**")
-            ma_period = st.slider("MA Period", 5, 100, 20, key="ma_period")
-            trend_strength = st.slider("Display Confidence", 0, 100, 75, key="trend_conf")
+            ma_period = st.selectbox("MA Period", options=[5, 10, 15, 20, 30, 50, 100], index=3)
+            trend_conf = st.selectbox("Display Confidence", options=[25, 50, 75, 90, 100], index=2)
             st.info(f"📊 Showing {len(df)} data points")
             
             st.divider()
@@ -384,7 +384,7 @@ if df is not None and len(df) > 0:
             
             with col1:
                 st.write("**Trend Analysis**")
-                window = st.slider("Moving Average Window", 5, 100, 20)
+                window = st.selectbox("Moving Average Window", options=[5, 10, 15, 20, 30, 50, 100], index=3)
                 
                 fig_trend = go.Figure()
                 fig_trend.add_trace(go.Scatter(x=df.index, y=df['Close'], name='Price'))
@@ -397,7 +397,7 @@ if df is not None and len(df) > 0:
             
             with col2:
                 st.write("**Volatility Analysis**")
-                vol_window = st.slider("Volatility Window", 5, 100, 20)
+                vol_window = st.selectbox("Volatility Window", options=[5, 10, 15, 20, 30, 50, 100], index=3)
                 
                 rolling_vol = df['Close'].pct_change().rolling(vol_window).std() * 100
                 fig_vol = px.line(y=rolling_vol, title="Rolling Volatility (%)")

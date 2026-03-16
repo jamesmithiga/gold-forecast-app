@@ -33,10 +33,10 @@ def create_date_range_selector() -> Tuple[pd.Timestamp, pd.Timestamp]:
     Returns:
         Tuple of (start_date, end_date)
     """
-    quick_period = st.radio(
+    quick_period = st.selectbox(
         "Quick Select:",
         options=["1M", "3M", "6M", "Custom"],
-        horizontal=True,
+        index=1,
         help="Quick date range selection"
     )
     
@@ -104,23 +104,19 @@ def create_forecast_config() -> Dict[str, Any]:
     """
     config = {}
     
-    # Forecast periods with slider
-    config["forecast_days"] = st.slider(
+    # Forecast periods with selectbox
+    config["forecast_days"] = st.selectbox(
         "Forecast Days:",
-        min_value=1,
-        max_value=90,
-        value=30,
-        step=5,
+        options=[1, 5, 7, 10, 14, 21, 30, 45, 60, 90],
+        index=6,
         help="Number of days to forecast ahead"
     )
     
     # Historical data window
-    config["historical_days"] = st.slider(
+    config["historical_days"] = st.selectbox(
         "Historical Window:",
-        min_value=30,
-        max_value=365,
-        value=180,
-        step=30,
+        options=[30, 60, 90, 120, 180, 365],
+        index=4,
         help="Number of historical days to display"
     )
     
@@ -157,15 +153,17 @@ def create_performance_filters() -> Dict[str, float]:
     
     # Filter by metric
     st.markdown("**Performance Filter**")
-    filters["min_accuracy"] = st.slider(
+    filters["min_accuracy"] = st.selectbox(
         "Minimum Accuracy (%)",
-        0.0, 100.0, 70.0, 5.0,
+        options=[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+        index=7,
         help="Filter models by minimum directional accuracy"
     )
     
-    filters["max_rmse"] = st.slider(
+    filters["max_rmse"] = st.selectbox(
         "Maximum RMSE ($)",
-        0.0, 100.0, 50.0, 5.0,
+        options=[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+        index=5,
         help="Filter models by maximum RMSE error"
     )
     

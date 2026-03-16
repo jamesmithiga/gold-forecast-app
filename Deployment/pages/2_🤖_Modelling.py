@@ -392,20 +392,22 @@ with st.sidebar:
     with sidebar_tabs[1]:
         # Filter by metric
         st.markdown("**Performance Filter**")
-        min_accuracy = st.slider(
+        min_accuracy = st.selectbox(
             "Minimum Accuracy (%)",
-            0.0, 100.0, 70.0, 5.0,
+            options=[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+            index=6,
             help="Filter models by minimum directional accuracy"
         )
         
-        max_rmse = st.slider(
+        max_rmse = st.selectbox(
             "Maximum RMSE ($)",
-            0.0, 100.0, 50.0, 5.0,
+            options=[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+            index=5,
             help="Filter models by maximum RMSE error"
         )
     
     with sidebar_tabs[2]:
-        metric_view = st.radio(
+        metric_view = st.selectbox(
             "View Type:",
             options=["Comparison", "Detailed"],
             help="Switch between comparison and detailed views"

@@ -93,7 +93,7 @@ def create_export_section(df: pd.DataFrame, title: str = "Export Data") -> None:
     
     with export_col1:
         st.markdown("**Format Selection**")
-        export_format = st.radio(
+        export_format = st.selectbox(
             "Select export format:",
             options=["CSV", "Excel", "JSON", "Parquet"],
             label_visibility="collapsed"
@@ -159,7 +159,7 @@ def create_data_table(df: pd.DataFrame, title: str = "Data Table") -> None:
     # Table view options
     col1, col2 = st.columns(2)
     with col1:
-        num_rows = st.slider("Rows to display:", 10, min(100, len(df)), 20)
+        num_rows = st.selectbox("Rows to display:", options=[10, 20, 30, 50, 100], index=1)
     with col2:
         sort_by = st.selectbox("Sort by:", ["Date", "Close", "Volume"])
     

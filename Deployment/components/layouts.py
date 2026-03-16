@@ -101,7 +101,7 @@ def create_advanced_statistics(df: pd.DataFrame, returns: pd.Series) -> None:
         
         with col1:
             st.write("**Trend Analysis**")
-            window = st.slider("Moving Average Window", 5, 100, 20)
+            window = st.selectbox("Moving Average Window", options=[5, 10, 15, 20, 30, 50, 100], index=3)
             
             fig_trend = go.Figure()
             fig_trend.add_trace(go.Scatter(x=df.index, y=df['Close'], name='Price'))
@@ -114,7 +114,7 @@ def create_advanced_statistics(df: pd.DataFrame, returns: pd.Series) -> None:
         
         with col2:
             st.write("**Volatility Analysis**")
-            vol_window = st.slider("Volatility Window", 5, 100, 20)
+            vol_window = st.selectbox("Volatility Window", options=[5, 10, 15, 20, 30, 50, 100], index=3)
             
             rolling_vol = df['Close'].pct_change().rolling(vol_window).std() * 100
             fig_vol = px.line(y=rolling_vol, title="Rolling Volatility (%)")
