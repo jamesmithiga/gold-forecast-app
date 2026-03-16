@@ -6,12 +6,57 @@ Creates technical indicators and features for ML models.
 
 import pandas as pd
 import numpy as np
-import pandas_ta as ta
 from typing import Dict, Any, Optional, List
 import logging
 from datetime import timedelta
 
+try:
+    import pandas_ta as ta
+    PANDAS_TA_AVAILABLE = True
+except ImportError:
+    ta = None
+    PANDAS_TA_AVAILABLE = False
+
 logger = logging.getLogger(__name__)
+
+
+def _calculate_rsi(series: pd.Series, length: int = 14) -> pd.Series:
+    delta = series.diff()
+    gains = delta.clip(lower=0)
+    losses = -delta.clip(upper=0)
+    avg_gain = gains.rolling(window=length, min_periods=length).mean()
+    avg_loss = losses.rolling(window=length, min_periods=length).mean()
+    rs = avg_gain / avg_loss.replace(0, np.nan)
+    return 100 - (100 / (1 + rs))
+
+
+def _calculate_macd(series: pd.Series, fast: int = 12, slow: int = 26, signal: int = 9) -> Dict[str, pd.Series]:
+    ema_fast = series.ewm(span=fast, adjust=False).mean()
+    ema_slow = series.ewm(span=slow, adjust=False).mean()
+    macd_line = ema_fast - ema_slow
+    signal_line = macd_line.ewm(span=signal, adjust=False).mean()
+    histogram = macd_line - signal_line
+    return {
+        "MACD_12_26_9": macd_line,
+        "MACDs_12_26_9": signal_line,
+        "MACDh_12_26_9": histogram,
+    }
+
+
+def _calculate_roc(series: pd.Series, length: int = 12) -> pd.Series:
+    return series.pct_change(periods=length) * 100
+
+
+def _append_manual_indicators(data_ml: pd.DataFrame) -> None:
+    close = data_ml["Close"]
+    data_ml["RSI_14"] = _calculate_rsi(close, length=14)
+    macd_values = _calculate_macd(close, fast=12, slow=26, signal=9)
+    for column_name, series in macd_values.items():
+        data_ml[column_name] = series
+    data_ml["SMA_20"] = close.rolling(window=20, min_periods=20).mean()
+    data_ml["SMA_50"] = close.rolling(window=50, min_periods=50).mean()
+    data_ml["EMA_10"] = close.ewm(span=10, adjust=False).mean()
+    data_ml["ROC_12"] = _calculate_roc(close, length=12)
 
 
 def engineer_features(df: pd.DataFrame, feature_set: Optional[List[str]] = None) -> pd.DataFrame:
@@ -37,16 +82,17 @@ def engineer_features(df: pd.DataFrame, feature_set: Optional[List[str]] = None)
         # Simple Momentum
         data_ml['Manual_Momentum_5'] = data_ml['Close'] - data_ml['Close'].shift(5)
         
-        # Technical indicators using pandas_ta only
-        logger.info("Creating technical indicators with pandas_ta...")
-        data_ml.ta.rsi(length=14, append=True)
-        data_ml.ta.macd(fast=12, slow=26, signal=9, append=True)
-        data_ml.ta.sma(length=20, append=True)
-        data_ml.ta.sma(length=50, append=True)
-        data_ml.ta.ema(length=10, append=True)
-        # pandas-ta equivalents for ROC and trendline
-        data_ml['ROC_12'] = ta.roc(data_ml['Close'], length=12)
-        # pandas-ta does not have direct Hilbert Transform, so omit HT_TRENDLINE and HT_DCPERIOD
+        if PANDAS_TA_AVAILABLE:
+            logger.info("Creating technical indicators with pandas_ta...")
+            data_ml.ta.rsi(length=14, append=True)
+            data_ml.ta.macd(fast=12, slow=26, signal=9, append=True)
+            data_ml.ta.sma(length=20, append=True)
+            data_ml.ta.sma(length=50, append=True)
+            data_ml.ta.ema(length=10, append=True)
+            data_ml['ROC_12'] = ta.roc(data_ml['Close'], length=12)
+        else:
+            logger.warning("pandas_ta is not installed; using native pandas indicator calculations")
+            _append_manual_indicators(data_ml)
         
         # Shift features by 1 to avoid look-ahead bias
         features = [c for c in data_ml.columns if c != 'Close']
