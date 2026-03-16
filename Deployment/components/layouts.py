@@ -148,7 +148,7 @@ def create_performance_charts(df: pd.DataFrame, metrics: Dict[str, Any]) -> None
         df: DataFrame with model metrics
         metrics: Dictionary of metric names and descriptions
     """
-    error_col, accuracy_col = st.columns(2)
+    error_col, fit_col = st.columns(2)
     
     with error_col:
         st.subheader("❌ Error Metrics")
@@ -177,8 +177,20 @@ def create_performance_charts(df: pd.DataFrame, metrics: Dict[str, Any]) -> None
         fig_mae.update_layout(height=350)
         st.plotly_chart(fig_mae, width='stretch')
     
-    with accuracy_col:
-        st.subheader("✅ Performance Metrics")
+    with fit_col:
+        st.subheader("📊 Error & Fit Metrics")
+        
+        # MAPE Comparison (focus on error metric)
+        fig_mape = px.bar(
+            df,
+            x="Model",
+            y="MAPE",
+            title="MAPE % (Lower is Better)",
+            color="MAPE",
+            color_continuous_scale="Purples"
+        )
+        fig_mape.update_layout(height=350)
+        st.plotly_chart(fig_mape, width='stretch')
         
         # R² Comparison
         fig_r2 = px.bar(
@@ -191,18 +203,6 @@ def create_performance_charts(df: pd.DataFrame, metrics: Dict[str, Any]) -> None
         )
         fig_r2.update_layout(height=350)
         st.plotly_chart(fig_r2, width='stretch')
-        
-        # Directional Accuracy
-        fig_acc = px.bar(
-            df,
-            x="Model",
-            y="Accuracy",
-            title="Directional Accuracy (Higher is Better)",
-            color="Accuracy",
-            color_continuous_scale="Blues"
-        )
-        fig_acc.update_layout(height=350)
-        st.plotly_chart(fig_acc, width='stretch')
 
 
 def create_model_details(model_name: str, model_info: Dict[str, Any]) -> None:

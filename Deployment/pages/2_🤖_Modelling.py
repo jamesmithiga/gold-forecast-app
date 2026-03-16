@@ -532,16 +532,21 @@ with tab1:
                 for idx, (col, model) in enumerate(zip(cols, valid_models)):
                     with col:
                         model_data = df_models[df_models["Model"] == model].iloc[0]
-                        # Handle null/NaN values for display
-                        r2_val = model_data['R²'] if pd.notna(model_data['R²']) and model_data['R²'] is not None else "N/A"
-                        if isinstance(r2_val, (int, float)):
-                            r2_display = f"{r2_val:.4f}"
+                        # Handle null/NaN values for display - Focus on error metrics (RMSE, MAPE)
+                        rmse_val = model_data['RMSE'] if pd.notna(model_data['RMSE']) and model_data['RMSE'] is not None else "N/A"
+                        mape_val = model_data['MAPE'] if pd.notna(model_data['MAPE']) and model_data['MAPE'] is not None else "N/A"
+                        if isinstance(rmse_val, (int, float)):
+                            rmse_display = f"${rmse_val:.2f}"
                         else:
-                            r2_display = r2_val
+                            rmse_display = rmse_val
+                        if isinstance(mape_val, (int, float)):
+                            mape_display = f"{mape_val:.2f}%"
+                        else:
+                            mape_display = mape_val
                         st.metric(
                             model,
-                            f"{model_data['Accuracy']:.1f}%" if pd.notna(model_data['Accuracy']) and model_data['Accuracy'] is not None else "N/A",
-                            f"R²: {r2_display}"
+                            f"{rmse_display}",
+                            f"MAPE: {mape_display}"
                         )
             st.markdown("### Detailed Metrics Table")
             display_df = df_models.copy()
@@ -594,7 +599,7 @@ with tab2:
             st.plotly_chart(fig_mae, width='stretch')
         
         with accuracy_col:
-            st.subheader("✅ Performance Metrics")
+            st.subheader("📊 Error & Fit Metrics")
             
             # R² Comparison
             fig_r2 = px.bar(
@@ -608,35 +613,34 @@ with tab2:
             fig_r2.update_layout(height=350)
             st.plotly_chart(fig_r2, width='stretch')
             
-            # Directional Accuracy
-            fig_acc = px.bar(
+            # MAPE Comparison (focus on error metric)
+            fig_mape = px.bar(
                 df_models,
                 x="Model",
-                y="Accuracy",
-                title="Directional Accuracy (Higher is Better)",
-                color="Accuracy",
-                color_continuous_scale="Blues"
+                y="MAPE",
+                title="MAPE % (Lower is Better)",
+                color="MAPE",
+                color_continuous_scale="Purples"
             )
-            fig_acc.update_layout(height=350)
-            st.plotly_chart(fig_acc, width='stretch')
+            fig_mape.update_layout(height=350)
+            st.plotly_chart(fig_mape, width='stretch')
         
         # Radar chart
         st.markdown("### Model Performance Radar Chart")
         
-        # Normalize metrics for radar
+        # Normalize metrics for radar - Focus on error metrics (RMSE, MAPE)
         df_normalized = df_models.copy()
         df_normalized["RMSE"] = 100 - (df_normalized["RMSE"] / df_normalized["RMSE"].max() * 100)
         df_normalized["MAE"] = 100 - (df_normalized["MAE"] / df_normalized["MAE"].max() * 100)
         df_normalized["MAPE"] = 100 - (df_normalized["MAPE"] / df_normalized["MAPE"].max() * 100)
         df_normalized["R²"] = df_normalized["R²"] * 100
-        df_normalized["Accuracy"] = df_normalized["Accuracy"]
         
         fig_radar = go.Figure()
         
         for idx, row in df_normalized.iterrows():
             fig_radar.add_trace(go.Scatterpolar(
-                r=[row["RMSE"], row["MAE"], row["MAPE"], row["R²"], row["Accuracy"]],
-                theta=["RMSE Fit", "MAE Fit", "MAPE Fit", "R² Score", "Directional Acc"],
+                r=[row["RMSE"], row["MAE"], row["MAPE"], row["R²"]],
+                theta=["RMSE Fit", "MAE Fit", "MAPE Fit", "R² Score"],
                 fill='toself',
                 name=row["Model"]
             ))
