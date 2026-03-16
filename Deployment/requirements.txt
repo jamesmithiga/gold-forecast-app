@@ -1,0 +1,16 @@
+# Core requirements for the project
+streamlit
+fastapi
+pandas
+numpy
+scikit-learn
+matplotlib
+plotly
+yfinance
+pydantic
+prophet
+pmdarima
+torch
+statsmodels
+holidays
+joblib
