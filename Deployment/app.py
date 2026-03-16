@@ -15,6 +15,7 @@ import socket
 import sys
 import threading
 import time
+import traceback
 from pathlib import Path
 
 import streamlit as st
@@ -27,6 +28,8 @@ BACKEND_PORT = int(os.getenv("PORT_API", os.getenv("API_PORT", "8000")))
 BACKEND_URL = os.getenv("API_BASE_URL", f"http://{BACKEND_HOST}:{BACKEND_PORT}")
 API_KEY = os.getenv("API_KEY", "xgold-forecast-key-2026-3b7f8a9c2d1e5f6g")
 BACKEND_THREAD_KEY = "_fastapi_backend_thread_started"
+BACKEND_WAIT_SECONDS = int(os.getenv("API_STARTUP_TIMEOUT", "30"))
+BACKEND_STATE = {"error": None}
 
 
 def _prepare_environment() -> None:
@@ -43,17 +46,20 @@ def _is_port_open(host: str, port: int) -> bool:
 
 
 def _run_backend() -> None:
-	from utils.fastapi_backend import app as fastapi_app
+	try:
+		from utils.fastapi_backend import app as fastapi_app
 
-	config = uvicorn.Config(
-		fastapi_app,
-		host=BACKEND_HOST,
-		port=BACKEND_PORT,
-		log_level="info",
-		reload=False,
-	)
-	server = uvicorn.Server(config)
-	server.run()
+		config = uvicorn.Config(
+			fastapi_app,
+			host=BACKEND_HOST,
+			port=BACKEND_PORT,
+			log_level="info",
+			reload=False,
+		)
+		server = uvicorn.Server(config)
+		server.run()
+	except Exception:
+		BACKEND_STATE["error"] = traceback.format_exc()
 
 
 def _ensure_backend_running() -> None:
@@ -61,17 +67,23 @@ def _ensure_backend_running() -> None:
 		return
 
 	if not st.session_state.get(BACKEND_THREAD_KEY):
+		BACKEND_STATE["error"] = None
 		backend_thread = threading.Thread(target=_run_backend, name="fastapi-backend", daemon=True)
 		backend_thread.start()
 		st.session_state[BACKEND_THREAD_KEY] = True
 
-	for _ in range(20):
+	for _ in range(BACKEND_WAIT_SECONDS * 4):
 		if _is_port_open(BACKEND_HOST, BACKEND_PORT):
+			return
+		backend_error = BACKEND_STATE.get("error")
+		if backend_error:
+			st.error("FastAPI backend failed to start.")
+			st.code(backend_error)
 			return
 		time.sleep(0.25)
 
 	st.warning(
-		"FastAPI backend did not start in time. "
+		f"FastAPI backend did not start within {BACKEND_WAIT_SECONDS} seconds. "
 		"Pages that depend on API calls may show connection errors."
 	)
 
