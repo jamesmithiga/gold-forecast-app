@@ -140,7 +140,7 @@ with st.sidebar:
         forecast_days = st.selectbox("Forecast Days:", options=[1, 5, 7, 10, 14, 21, 30, 45, 60, 90], index=6)
         historical_days = st.selectbox("Historical Window:", options=[30, 60, 90, 120, 180, 365], index=4)
         st.divider()
-        confidence_level = st.slider("Confidence Level:", min_value=80, max_value=99, value=95, step=1, help="Confidence level for prediction bands")
+        confidence_level = st.selectbox("Confidence Level:", options=[80, 85, 90, 95, 99], index=3, help="Confidence level for prediction bands")
     with config_tabs[2]:
         st.markdown("**Visualization Options**")
         show_historical = st.checkbox("Show Historical Data", value=True)
@@ -212,11 +212,11 @@ with tab1:
     if predictions and historical_df is not None:
         col_ctrl1, col_ctrl2, col_ctrl3 = st.columns(3)
         with col_ctrl1:
-            volatility_adj = st.slider("Volatility Adjustment", 0.5, 2.0, 1.0, 0.1)
+            volatility_adj = st.selectbox("Volatility Adjustment:", options=[0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0], index=5)
         with col_ctrl2:
-            trend_strength = st.slider("Trend Strength", 0.0, 1.0, 0.7, 0.1)
+            trend_strength = st.selectbox("Trend Strength:", options=[0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], index=6)
         with col_ctrl3:
-            smoothing = st.slider("Smoothing Factor", 0.0, 1.0, 0.3, 0.1)
+            smoothing = st.selectbox("Smoothing Factor:", options=[0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], index=2)
         st.divider()
         
         fig = go.Figure()
