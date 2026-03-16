@@ -123,6 +123,6 @@ echo.
 
 REM Start Streamlit dashboard
 echo [INFO] Starting Streamlit dashboard...
-call .venv\Scripts\activate.bat && streamlit run streamlit_dashboard.py
+call .venv\Scripts\activate.bat && streamlit run app.py
 
 pause
